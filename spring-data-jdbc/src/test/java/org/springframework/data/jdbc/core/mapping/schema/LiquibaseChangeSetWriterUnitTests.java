@@ -164,21 +164,20 @@ class LiquibaseChangeSetWriterUnitTests {
 
 	@org.springframework.data.relational.core.mapping.Table
 	static class OtherTable {
-		@Id long id;
+		String name;
 	}
 
 	@org.springframework.data.relational.core.mapping.Table
 	static class Tables {
-		@Id int id;
 		@MappedCollection
-		Set<OtherTable> tables;
+		List<OtherTable> tables;
 	}
 
 	@org.springframework.data.relational.core.mapping.Table
-	static class SetOfTables {
+	static class ListOfTables {
 		@Id int id;
 		@MappedCollection(idColumn = "set_id")
-		Set<Tables> setOfTables;
+		List<Tables> setOfTables;
 	}
 
 	@org.springframework.data.relational.core.mapping.Table
