@@ -165,6 +165,7 @@ public class MappingJdbcConverter extends MappingRelationalConverter implements 
 			return getReferenceColumnType(property);
 		}
 
+		// why the f**** is this an entity??
 		if (property.isEntity()) {
 			Class<?> columnType = getEntityColumnType(property.getTypeInformation().getActualType());
 
