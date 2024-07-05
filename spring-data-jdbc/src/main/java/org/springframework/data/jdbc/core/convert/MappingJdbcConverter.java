@@ -159,6 +159,8 @@ public class MappingJdbcConverter extends MappingRelationalConverter implements 
 
 	private Class<?> doGetColumnType(RelationalPersistentProperty property) {
 
+		// here we get the column type and it seems we ignore custom conversions
+
 		if (property.isAssociation()) {
 			return getReferenceColumnType(property);
 		}
