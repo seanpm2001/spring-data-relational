@@ -43,6 +43,8 @@ public class JdbcIdentifierBuilder {
 	public static JdbcIdentifierBuilder forBackReferences(JdbcConverter converter, AggregatePath path,
 			@Nullable Object value) {
 
+		// TODO: we need to actually convert this
+
 		Identifier identifier = Identifier.of( //
 				path.getTableInfo().reverseColumnInfo().name(), //
 				value, //
