@@ -15,7 +15,12 @@
  */
 package org.springframework.data.jdbc.core.convert;
 
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.data.mapping.PersistentPropertyAccessor;
+import org.springframework.data.mapping.SimplePropertyHandler;
 import org.springframework.data.relational.core.mapping.AggregatePath;
+import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
+import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -45,10 +50,26 @@ public class JdbcIdentifierBuilder {
 
 		// TODO: we need to actually convert this
 
+		RelationalPersistentProperty idProperty = path.getIdDefiningParentPath().getRequiredIdProperty();
+
+		if (value != null && idProperty.isEntity() && idProperty.isEmbedded()) {
+			// TODO: Fix for more than one property
+			RelationalPersistentEntity<?> propertyType = converter.getMappingContext().getRequiredPersistentEntity(idProperty.getType());
+			PersistentPropertyAccessor<Object> propertyAccessor = propertyType.getPropertyAccessor(value);
+			Object[] bucket = new Object[1];
+			propertyType.doWithProperties((SimplePropertyHandler) p -> {
+				if (bucket[0] != null) {
+					throw new IllegalStateException("Can't handle embededs with more than one property");
+				}
+				bucket[0] = propertyAccessor.getProperty(p);
+			});
+			value = bucket[0];
+		}
+
 		Identifier identifier = Identifier.of( //
 				path.getTableInfo().reverseColumnInfo().name(), //
 				value, //
-				converter.getColumnType(path.getIdDefiningParentPath().getRequiredIdProperty()) //
+				converter.getColumnType(idProperty) //
 		);
 
 		return new JdbcIdentifierBuilder(identifier);
