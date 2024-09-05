@@ -99,6 +99,20 @@ class DefaultAggregatePath implements AggregatePath {
 		return nestedCache.get(property);
 	}
 
+	@Override
+	public AggregatePath append(AggregatePath path) {
+
+		if (path.isRoot()) {
+			return this;
+		}
+
+		RelationalPersistentProperty baseProperty = path.getRequiredBaseProperty();
+		AggregatePath appended = append(baseProperty);
+		AggregatePath tail = path.getTail();
+		return tail == null ? appended : appended.append(tail);
+
+	}
+
 	private AggregatePath doGetAggegatePath(RelationalPersistentProperty property) {
 
 		PersistentPropertyPath<? extends RelationalPersistentProperty> newPath = isRoot() //
@@ -197,7 +211,12 @@ class DefaultAggregatePath implements AggregatePath {
 	}
 
 	@Override
+	@Nullable
 	public AggregatePath getTail() {
+
+		if (getLength() <= 2) {
+			return null;
+		}
 
 		AggregatePath tail = null;
 		for (RelationalPersistentProperty prop : this.path) {

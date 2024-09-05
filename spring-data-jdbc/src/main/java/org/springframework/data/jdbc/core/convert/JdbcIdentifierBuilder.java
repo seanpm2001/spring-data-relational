@@ -48,8 +48,6 @@ public class JdbcIdentifierBuilder {
 	public static JdbcIdentifierBuilder forBackReferences(JdbcConverter converter, AggregatePath path,
 			@Nullable Object value) {
 
-		// TODO: we need to actually convert this
-
 		RelationalPersistentProperty idProperty = path.getIdDefiningParentPath().getRequiredIdProperty();
 
 		if (value != null && idProperty.isEntity() && idProperty.isEmbedded()) {

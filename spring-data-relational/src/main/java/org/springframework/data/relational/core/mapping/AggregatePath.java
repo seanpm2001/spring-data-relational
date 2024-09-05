@@ -53,6 +53,16 @@ public interface AggregatePath extends Iterable<AggregatePath> {
 	AggregatePath append(RelationalPersistentProperty property);
 
 	/**
+	 * Creates a new path by extending the current path by the path passed as an argument.
+	 *
+	 * @param path must not be {@literal null}.
+	 * @return Guaranteed to be not {@literal null}.
+	 *
+	 * @since 3.4
+	 */
+	AggregatePath append(AggregatePath path);
+
+	/**
 	 * @return {@literal true} if this is a root path for the underlying type.
 	 */
 	boolean isRoot();
@@ -227,6 +237,7 @@ public interface AggregatePath extends Iterable<AggregatePath> {
 	 */
 	AggregatePath getIdDefiningParentPath();
 
+	@Nullable
 	AggregatePath getTail();
 
 	record TableInfo(
