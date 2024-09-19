@@ -42,6 +42,7 @@ import org.springframework.lang.Nullable;
  *
  * @author Bastian Wilhelm
  * @author Mark Paluch
+ * @author Jens Schauder
  */
 class SqlGeneratorEmbeddedUnitTests {
 
@@ -84,8 +85,9 @@ class SqlGeneratorEmbeddedUnitTests {
 					.doesNotContain("JOIN").doesNotContain("embeddable"); //
 		});
 	}
-    @Test // DATAJDBC-111
-	void findOneEmbeddedId() {
+
+    @Test // DATAJDBC-574
+	void findOneWrappedId() {
 
 		SqlGenerator sqlGenerator = new SqlGenerator(context,converter, context.getRequiredPersistentEntity(DummyEntityWithWrappedId.class), AnsiDialect.INSTANCE);
 
@@ -97,6 +99,25 @@ class SqlGeneratorEmbeddedUnitTests {
 					.contains("DUMMY_ENTITY_WITH_WRAPPED_ID.NAME AS NAME") //
 					.contains("DUMMY_ENTITY_WITH_WRAPPED_ID.ID") //
 					.contains("WHERE DUMMY_ENTITY_WITH_WRAPPED_ID.ID = :id");
+		});
+	}
+
+    @Test // DATAJDBC-574
+	void findOneEmbeddedId() {
+
+		SqlGenerator sqlGenerator = new SqlGenerator(context,converter, context.getRequiredPersistentEntity(DummyEntityWithEmbeddedId.class), AnsiDialect.INSTANCE);
+
+		String sql = sqlGenerator.getFindOne();
+
+		assertSoftly(softly -> {
+
+			softly.assertThat(sql).startsWith("SELECT") //
+					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.NAME AS NAME") //
+					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.ONE") //
+					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.TWO") //
+					.contains(" WHERE ") //
+					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.ONE = :one") //
+					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.TWO = :two");
 		});
 	}
 
@@ -348,7 +369,6 @@ class SqlGeneratorEmbeddedUnitTests {
 		@Embedded(onEmpty = OnEmpty.USE_NULL) CascadedEmbedded embeddable;
 	}
 
-
 	record WrappedId(Long id) {
 	}
 	static class DummyEntityWithWrappedId {
@@ -356,6 +376,18 @@ class SqlGeneratorEmbeddedUnitTests {
 		@Id
 		@Embedded(onEmpty = OnEmpty.USE_NULL)
 		WrappedId wrappedId;
+
+		String name;
+	}
+
+	record EmbeddedId(Long one, String two) {
+	}
+
+	static class DummyEntityWithEmbeddedId {
+
+		@Id
+		@Embedded(onEmpty = OnEmpty.USE_NULL)
+		EmbeddedId embeddedId;
 
 		String name;
 	}
