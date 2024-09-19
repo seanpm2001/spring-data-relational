@@ -82,7 +82,7 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		SimpleEntityWithEmbeddedPk entity = template
 				.insert(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"));
 
-		SimpleEntity reloaded = template.findById(entity.embeddedPk, SimpleEntity.class);
+		SimpleEntityWithEmbeddedPk reloaded = template.findById(entity.embeddedPk, SimpleEntityWithEmbeddedPk.class);
 
 		assertThat(reloaded).isEqualTo(entity);
 	}
