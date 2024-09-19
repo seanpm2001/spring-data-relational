@@ -618,7 +618,7 @@ class SqlGeneratorUnitTests {
 						+ "entity_with_read_only_property.x_name AS x_name, " //
 						+ "entity_with_read_only_property.x_read_only_value AS x_read_only_value " //
 						+ "FROM entity_with_read_only_property " //
-						+ "WHERE entity_with_read_only_property.x_id = :id" //
+						+ "WHERE entity_with_read_only_property.x_id = :x_id" //
 		);
 	}
 
