@@ -17,6 +17,8 @@ package org.springframework.data.jdbc.core;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,8 +35,6 @@ import org.springframework.data.jdbc.testing.TestConfiguration;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.RelationalMappingContext;
 
-import java.util.List;
-
 /**
  * Integration tests for {@link JdbcAggregateTemplate} and it's handling of entities with embedded entities as keys.
  *
@@ -44,11 +44,10 @@ import java.util.List;
 @EnabledOnDatabase(DatabaseType.HSQL)
 public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 
-	@Autowired
-	JdbcAggregateOperations template;
+	@Autowired JdbcAggregateOperations template;
 
-
-	@Test // GH-574
+	@Test
+	// GH-574
 	void saveAndLoadSimpleEntity() {
 
 		SimpleEntity entity = template.insert(new SimpleEntity(new WrappedPk(23L), "alpha"));
@@ -61,11 +60,12 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		assertThat(reloaded).isEqualTo(entity);
 	}
 
-
-	@Test // GH-574
+	@Test
+	// GH-574
 	void saveAndLoadEntityWithList() {
 
-		WithList entity = template.insert(new WithList(new WrappedPk(23L), "alpha", List.of(new Child("Romulus"), new Child("Remus"))));
+		WithList entity = template
+				.insert(new WithList(new WrappedPk(23L), "alpha", List.of(new Child("Romulus"), new Child("Remus"))));
 
 		assertThat(entity.wrappedPk).isNotNull() //
 				.extracting(WrappedPk::id).isNotNull();
@@ -75,14 +75,24 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		assertThat(reloaded).isEqualTo(entity);
 	}
 
+	@Test
+	// GH-574
+	void saveAndLoadSimpleEntityWithEmbeddedPk() {
 
+		SimpleEntityWithEmbeddedPk entity = template
+				.insert(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"));
+
+		SimpleEntity reloaded = template.findById(entity.embeddedPk, SimpleEntity.class);
+
+		assertThat(reloaded).isEqualTo(entity);
+	}
 
 	private record WrappedPk(Long id) {
 	}
 
 	private record SimpleEntity( //
-								 @Id @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) WrappedPk wrappedPk, //
-								 String name //
+			@Id @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) WrappedPk wrappedPk, //
+			String name //
 	) {
 	}
 
@@ -90,9 +100,16 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 	}
 
 	private record WithList( //
-							 @Id @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) WrappedPk wrappedPk, //
-							 String name,
-							 List<Child> children
+			@Id @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) WrappedPk wrappedPk, //
+			String name, List<Child> children) {
+	}
+
+	private record EmbeddedPk(Long one, String two) {
+	}
+
+	private record SimpleEntityWithEmbeddedPk( //
+			@Id @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) EmbeddedPk embeddedPk, //
+			String name //
 	) {
 	}
 
@@ -107,7 +124,7 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 
 		@Bean
 		JdbcAggregateOperations operations(ApplicationEventPublisher publisher, RelationalMappingContext context,
-										   DataAccessStrategy dataAccessStrategy, JdbcConverter converter) {
+				DataAccessStrategy dataAccessStrategy, JdbcConverter converter) {
 			return new JdbcAggregateTemplate(publisher, context, converter, dataAccessStrategy);
 		}
 	}
