@@ -140,18 +140,17 @@ public class SqlParametersFactory {
 						parameterSource, //
 						idElementPath.getRequiredLeafProperty(), //
 						idValue, //
-						name //
+						idElementPath.getColumnInfo().name() //
 				);
 			}
 
 		} else {
 
-
 			addConvertedPropertyValue( //
 					parameterSource, //
 					singleIdProperty, //
 					id, //
-					name //
+					singleIdProperty.getColumnName() //
 			);
 		}
 		return parameterSource;
