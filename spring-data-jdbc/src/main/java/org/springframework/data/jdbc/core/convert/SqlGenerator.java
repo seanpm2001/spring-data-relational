@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jdbc.repository.support.SimpleJdbcRepository;
 import org.springframework.data.mapping.PersistentPropertyPath;
-import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.relational.core.dialect.Dialect;
 import org.springframework.data.relational.core.dialect.RenderContextFactory;
@@ -470,10 +469,20 @@ class SqlGenerator {
 
 	private String createFindOneSql() {
 
-		Select select = selectBuilder().where(getIdColumn().isEqualTo(getBindMarker(ID_SQL_PARAMETER))) //
-				.build();
+		SelectBuilder.SelectWhereAndOr select = null;
 
-		return render(select);
+		for (Column column : getIdColumns()) {
+			Comparison condition = column.isEqualTo(getBindMarker(column.getName()));
+			if (select == null) {
+				select = selectBuilder().where(condition);
+			} else {
+				select = select.and(condition);
+			}
+		}
+
+		Assert.state(select != null, "We need at least one id column");
+
+		return render(select.build());
 	}
 
 	private String createAcquireLockById(LockMode lockMode) {
@@ -811,6 +820,18 @@ class SqlGenerator {
 		AggregatePath idAggregatePath = idPaths.get(0);// TODO: hack for single column
 
 		return sqlContext.getColumn(idAggregatePath);
+	}
+
+	private List<Column> getIdColumns() {
+
+		List<AggregatePath> idPaths = mappingContext.getIdPaths(entity);
+
+		List<Column> result = new ArrayList<>(idPaths.size());
+
+		for (AggregatePath idPath : idPaths) {
+			result.add(sqlContext.getColumn(idPath));
+		}
+		return result;
 	}
 
 	private Column getVersionColumn() {
