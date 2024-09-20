@@ -748,7 +748,7 @@ class SqlGenerator {
 	private DeleteBuilder.DeleteWhereAndOr createBaseDeleteById(Table table) {
 
 		return Delete.builder().from(table) //
-				.where(getIdColumn().isEqualTo(getBindMarker(ID_SQL_PARAMETER)));
+				.where(getIdColumn().isEqualTo(getBindMarker(entity.getIdColumn())));
 	}
 
 	private DeleteBuilder.DeleteWhereAndOr createBaseDeleteByIdIn(Table table) {
