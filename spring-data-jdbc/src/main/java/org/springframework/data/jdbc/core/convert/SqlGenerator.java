@@ -654,7 +654,7 @@ class SqlGenerator {
 		Select select = StatementBuilder //
 				.select(Functions.count(getIdColumn())) //
 				.from(table) //
-				.where(getIdColumn().isEqualTo(getBindMarker(ID_SQL_PARAMETER))) //
+				.where(getIdColumn().isEqualTo(getBindMarker(entity.getIdColumn()))) //
 				.build();
 
 		return render(select);
