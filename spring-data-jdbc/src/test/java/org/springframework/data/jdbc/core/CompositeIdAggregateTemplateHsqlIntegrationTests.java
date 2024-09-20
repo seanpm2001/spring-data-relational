@@ -92,11 +92,16 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 	void saveAndLoadSimpleEntitiesWithEmbeddedPk() {
 
 		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) template
-				.insertAll(List.of(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha")));
+				.insertAll(List.of(
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "y"), "beta"),
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")
+				));
 
-		Iterable<SimpleEntityWithEmbeddedPk> reloaded = template.findAllById(entities.stream().map(SimpleEntityWithEmbeddedPk::embeddedPk).toList(), SimpleEntityWithEmbeddedPk.class);
+		List<EmbeddedPk> firstTwoPks = entities.stream().limit(2).map(SimpleEntityWithEmbeddedPk::embeddedPk).toList();
+		Iterable<SimpleEntityWithEmbeddedPk> reloaded = template.findAllById(firstTwoPks, SimpleEntityWithEmbeddedPk.class);
 
-		assertThat(reloaded).containsExactlyInAnyOrder(entities.toArray(new SimpleEntityWithEmbeddedPk[0]));
+		assertThat(reloaded).containsExactlyInAnyOrder(entities.get(0), entities.get(1));
 	}
 
 	private record WrappedPk(Long id) {
