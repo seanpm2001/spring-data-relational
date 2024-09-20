@@ -86,38 +86,38 @@ class SqlGeneratorEmbeddedUnitTests {
 		});
 	}
 
-    @Test // DATAJDBC-574
+    @Test // GH-574
 	void findOneWrappedId() {
 
-		SqlGenerator sqlGenerator = new SqlGenerator(context,converter, context.getRequiredPersistentEntity(DummyEntityWithWrappedId.class), AnsiDialect.INSTANCE);
+		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithWrappedId.class);
 
 		String sql = sqlGenerator.getFindOne();
 
 		assertSoftly(softly -> {
 
 			softly.assertThat(sql).startsWith("SELECT") //
-					.contains("DUMMY_ENTITY_WITH_WRAPPED_ID.NAME AS NAME") //
-					.contains("DUMMY_ENTITY_WITH_WRAPPED_ID.ID") //
-					.contains("WHERE DUMMY_ENTITY_WITH_WRAPPED_ID.ID = :id");
+					.contains("dummy_entity_with_wrapped_id.name AS name") //
+					.contains("dummy_entity_with_wrapped_id.id") //
+					.contains("WHERE dummy_entity_with_wrapped_id.id = :id");
 		});
 	}
 
-    @Test // DATAJDBC-574
+    @Test // GH-574
 	void findOneEmbeddedId() {
 
-		SqlGenerator sqlGenerator = new SqlGenerator(context,converter, context.getRequiredPersistentEntity(DummyEntityWithEmbeddedId.class), AnsiDialect.INSTANCE);
+		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithEmbeddedId.class);
 
 		String sql = sqlGenerator.getFindOne();
 
 		assertSoftly(softly -> {
 
 			softly.assertThat(sql).startsWith("SELECT") //
-					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.NAME AS NAME") //
-					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.ONE") //
-					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.TWO") //
+					.contains("dummy_entity_with_embedded_id.name AS name") //
+					.contains("dummy_entity_with_embedded_id.one") //
+					.contains("dummy_entity_with_embedded_id.two") //
 					.contains(" WHERE ") //
-					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.ONE = :one") //
-					.contains("DUMMY_ENTITY_WITH_EMBEDDED_ID.TWO = :two");
+					.contains("dummy_entity_with_embedded_id.one = :one") //
+					.contains("dummy_entity_with_embedded_id.two = :two");
 		});
 	}
 
@@ -146,7 +146,8 @@ class SqlGeneratorEmbeddedUnitTests {
 
 	@Test // DATAJDBC-111
 	void findAllInList() {
-		final String sql = sqlGenerator.getFindAllInList();
+
+		String sql = sqlGenerator.getFindAllInList();
 
 		assertSoftly(softly -> {
 
@@ -164,6 +165,23 @@ class SqlGeneratorEmbeddedUnitTests {
 					.contains("WHERE dummy_entity.id1 IN (:ids)") //
 					.doesNotContain("JOIN") //
 					.doesNotContain("embeddable");
+		});
+	}
+
+	@Test // GH-574
+	void findAllInListEmbeddedId() {
+
+		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithEmbeddedId.class);
+
+		String sql = sqlGenerator.getFindAllInList();
+
+		assertSoftly(softly -> {
+
+			softly.assertThat(sql).startsWith("SELECT") //
+					.contains("dummy_entity_with_embedded_id.name AS name") //
+					.contains("dummy_entity_with_embedded_id.one") //
+					.contains("dummy_entity_with_embedded_id.two") //
+					.contains(" WHERE (dummy_entity_with_embedded_id.one, dummy_entity_with_embedded_id.two) IN :ids");
 		});
 	}
 
