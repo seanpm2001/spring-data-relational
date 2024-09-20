@@ -153,7 +153,7 @@ class SqlGeneratorUnitTests {
 
 		String sql = sqlGenerator.createDeleteByPath(getPath("ref", DummyEntity.class));
 
-		assertThat(sql).isEqualTo("DELETE FROM referenced_entity WHERE referenced_entity.dummy_entity = :rootId");
+		assertThat(sql).isEqualTo("DELETE FROM referenced_entity WHERE referenced_entity.dummy_entity = :id1");
 	}
 
 	@Test // GH-537
@@ -170,7 +170,7 @@ class SqlGeneratorUnitTests {
 		String sql = sqlGenerator.createDeleteByPath(getPath("ref.further", DummyEntity.class));
 
 		assertThat(sql).isEqualTo(
-				"DELETE FROM second_level_referenced_entity WHERE second_level_referenced_entity.referenced_entity IN (SELECT referenced_entity.x_l1id FROM referenced_entity WHERE referenced_entity.dummy_entity = :rootId)");
+				"DELETE FROM second_level_referenced_entity WHERE second_level_referenced_entity.referenced_entity IN (SELECT referenced_entity.x_l1id FROM referenced_entity WHERE referenced_entity.dummy_entity = :id1)");
 	}
 
 	@Test // GH-537
@@ -220,7 +220,7 @@ class SqlGeneratorUnitTests {
 
 		String sql = sqlGenerator.createDeleteByPath(getPath("mappedElements", DummyEntity.class));
 
-		assertThat(sql).isEqualTo("DELETE FROM element WHERE element.dummy_entity = :rootId");
+		assertThat(sql).isEqualTo("DELETE FROM element WHERE element.dummy_entity = :id1");
 	}
 
 	@Test // DATAJDBC-101
@@ -637,7 +637,7 @@ class SqlGeneratorUnitTests {
 						"WHERE chain2.chain3 IN (" + //
 						"SELECT chain3.x_three " + //
 						"FROM chain3 " + //
-						"WHERE chain3.chain4 = :rootId" + //
+						"WHERE chain3.chain4 = :x_four" + //
 						")))");
 	}
 
@@ -646,7 +646,7 @@ class SqlGeneratorUnitTests {
 
 		assertThat(createSqlGenerator(NoIdChain4.class)
 				.createDeleteByPath(getPath("chain3.chain2.chain1.chain0", NoIdChain4.class))) //
-				.isEqualTo("DELETE FROM no_id_chain0 WHERE no_id_chain0.no_id_chain4 = :rootId");
+				.isEqualTo("DELETE FROM no_id_chain0 WHERE no_id_chain0.no_id_chain4 = :x_four");
 	}
 
 	@Test // DATAJDBC-359
@@ -662,7 +662,7 @@ class SqlGeneratorUnitTests {
 								+ "WHERE no_id_chain4.id_no_id_chain IN (" //
 								+ "SELECT id_no_id_chain.x_id " //
 								+ "FROM id_no_id_chain " //
-								+ "WHERE id_no_id_chain.id_id_no_id_chain = :rootId" //
+								+ "WHERE id_no_id_chain.id_id_no_id_chain = :x_id" //
 								+ "))");
 	}
 

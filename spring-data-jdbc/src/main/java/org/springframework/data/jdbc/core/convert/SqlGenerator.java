@@ -451,7 +451,7 @@ class SqlGenerator {
 	 */
 	String createDeleteByPath(PersistentPropertyPath<RelationalPersistentProperty> path) {
 		return createDeleteByPathAndCriteria(mappingContext.getAggregatePath(path),
-				filterColumn -> filterColumn.isEqualTo(getBindMarker(ROOT_ID_PARAMETER)));
+				filterColumn -> filterColumn.isEqualTo(getBindMarker(entity.getIdColumn())));
 	}
 
 	/**
