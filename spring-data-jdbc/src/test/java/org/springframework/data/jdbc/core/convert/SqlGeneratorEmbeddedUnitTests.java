@@ -162,7 +162,7 @@ class SqlGeneratorEmbeddedUnitTests {
 					.contains("dummy_entity.prefix_attr2 AS prefix_attr2") //
 					.contains("dummy_entity.prefix_prefix2_attr1 AS prefix_prefix2_attr1") //
 					.contains("dummy_entity.prefix_prefix2_attr2 AS prefix_prefix2_attr2") //
-					.contains("WHERE dummy_entity.id1 IN (:ids)") //
+					.contains("WHERE (dummy_entity.id1) IN (:ids)") //
 					.doesNotContain("JOIN") //
 					.doesNotContain("embeddable");
 		});
@@ -181,7 +181,7 @@ class SqlGeneratorEmbeddedUnitTests {
 					.contains("dummy_entity_with_embedded_id.name AS name") //
 					.contains("dummy_entity_with_embedded_id.one") //
 					.contains("dummy_entity_with_embedded_id.two") //
-					.contains(" WHERE (dummy_entity_with_embedded_id.one, dummy_entity_with_embedded_id.two) IN :ids");
+					.contains(" WHERE (dummy_entity_with_embedded_id.one, dummy_entity_with_embedded_id.two) IN (:ids)");
 		});
 	}
 

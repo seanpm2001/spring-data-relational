@@ -16,13 +16,13 @@ import java.util.List;
  */
 public class TupleExpression extends AbstractSegment implements Expression {
 
-	private final List<Expression> expressions;
+	private final List<? extends Expression> expressions;
 
-	private static Segment[] children(List<Expression> expressions) {
+	private static Segment[] children(List<? extends Expression> expressions) {
 		return expressions.toArray(new Segment[0]);
 	}
 
-	private TupleExpression(List<Expression> expressions) {
+	private TupleExpression(List<? extends Expression> expressions) {
 
 		super(children(expressions));
 
@@ -31,6 +31,10 @@ public class TupleExpression extends AbstractSegment implements Expression {
 
 	public static TupleExpression create(Expression... expressions) {
 		return new TupleExpression(List.of(expressions));
+	}
+
+	public static TupleExpression create(List<? extends Expression> expressions) {
+		return new TupleExpression(expressions);
 	}
 
 	@Override

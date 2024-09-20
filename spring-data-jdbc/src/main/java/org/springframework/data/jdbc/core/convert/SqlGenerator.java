@@ -644,10 +644,9 @@ class SqlGenerator {
 
 		List<Column> idColumns = getIdColumns();
 
+		TupleExpression tuple = TupleExpression.create(idColumns);
 
-
-		Column idColumn = getIdColumn();
-		In condition = Conditions.in(idColumn, getBindMarker(IDS_SQL_PARAMETER));
+		In condition = Conditions.in(tuple, getBindMarker(IDS_SQL_PARAMETER));
 		Select select = selectBuilder().where(condition).build();
 
 		return render(select);
