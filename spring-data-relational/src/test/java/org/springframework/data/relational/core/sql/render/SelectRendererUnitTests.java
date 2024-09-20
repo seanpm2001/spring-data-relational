@@ -689,7 +689,7 @@ class SelectRendererUnitTests {
 		assertThat(rendered).isEqualTo("SELECT e.*, e.id FROM employee e");
 	}
 
-	@Test
+	@Test // GH-1844
 	void rendersCaseExpression() {
 
 		Table table = SQL.table("table");
@@ -707,6 +707,24 @@ class SelectRendererUnitTests {
 		assertThat(rendered).isEqualTo("SELECT CASE WHEN table.name IS NULL THEN 1 WHEN table.name IS NOT NULL THEN table.name ELSE 3 END FROM table");
 	}
 
+	@Test // GH-574
+	void rendersTupleExpression() {
+
+		Table table = SQL.table("table");
+		Column first = table.column("first");
+		Column middle = table.column("middle");
+		Column last = table.column("last").as("anAlias");
+
+		TupleExpression tupleExpression = TupleExpression.create(first, SQL.literalOf(1), middle, last); //
+
+		Select select = StatementBuilder.select(first) //
+				.from(table) //
+				.where(Conditions.in(tupleExpression, Expressions.just("some expression")))
+				.build();
+
+		String rendered = SqlRenderer.toString(select);
+		assertThat(rendered).isEqualTo("SELECT table.first FROM table WHERE (table.first, 1, table.middle, table.last) IN (some expression)");
+	}
 	/**
 	 * Tests the rendering of analytic functions.
 	 */

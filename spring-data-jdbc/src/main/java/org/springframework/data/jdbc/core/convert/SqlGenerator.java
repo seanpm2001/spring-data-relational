@@ -642,7 +642,13 @@ class SqlGenerator {
 
 	private String createFindAllInListSql() {
 
-		Select select = selectBuilder().where(getIdColumn().in(getBindMarker(IDS_SQL_PARAMETER))).build();
+		List<Column> idColumns = getIdColumns();
+
+
+
+		Column idColumn = getIdColumn();
+		In condition = Conditions.in(idColumn, getBindMarker(IDS_SQL_PARAMETER));
+		Select select = selectBuilder().where(condition).build();
 
 		return render(select);
 	}
