@@ -15,6 +15,7 @@
  */
 package org.springframework.data.jdbc.core.convert;
 
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -660,7 +661,6 @@ class SqlGenerator {
 	}
 
 	private String createExistsSql() {
-
 		Table table = getTable();
 
 		Select select = StatementBuilder //
