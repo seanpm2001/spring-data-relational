@@ -741,7 +741,7 @@ class SqlGenerator {
 		return Update.builder() //
 				.table(table) //
 				.set(assignments) //
-				.where(getIdColumn().isEqualTo(getBindMarker(entity.getIdColumn())));
+				.where(singleIdWhereCondition());
 	}
 
 	private String createDeleteByIdSql() {

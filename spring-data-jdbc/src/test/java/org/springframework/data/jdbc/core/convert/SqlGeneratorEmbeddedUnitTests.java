@@ -153,6 +153,22 @@ class SqlGeneratorEmbeddedUnitTests {
 	}
 
     @Test // GH-574
+	void updateWithEmbeddedId() {
+
+		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithEmbeddedId.class);
+
+		String sql = sqlGenerator.getUpdate();
+
+		assertSoftly(softly -> {
+
+			softly.assertThat(sql).startsWith("UPDATE") //
+					.contains(" WHERE ") //
+					.contains("dummy_entity_with_embedded_id.one = :one") //
+					.contains("dummy_entity_with_embedded_id.two = :two");
+		});
+	}
+
+    @Test // GH-574
 	void existsByIdEmbeddedId() {
 
 		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithEmbeddedId.class);
