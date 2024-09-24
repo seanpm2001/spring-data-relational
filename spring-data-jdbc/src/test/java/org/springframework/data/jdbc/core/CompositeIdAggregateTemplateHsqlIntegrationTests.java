@@ -18,7 +18,6 @@ package org.springframework.data.jdbc.core;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +46,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 
 	@Autowired JdbcAggregateOperations template;
-	@Autowired
-	private NamedParameterJdbcOperations namedParameterJdbcTemplate;
+	@Autowired private NamedParameterJdbcOperations namedParameterJdbcTemplate;
 
 	@Test
 	// GH-574
@@ -79,8 +77,7 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		assertThat(reloaded).isEqualTo(entity);
 	}
 
-	@Test
-	// GH-574
+	@Test // GH-574
 	void saveAndLoadSimpleEntityWithEmbeddedPk() {
 
 		SimpleEntityWithEmbeddedPk entity = template
@@ -91,36 +88,18 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		assertThat(reloaded).isEqualTo(entity);
 	}
 
-	@Test
-	// GH-574
+	@Test // GH-574
 	void saveAndLoadSimpleEntitiesWithEmbeddedPk() {
 
 		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) template
-				.insertAll(List.of(
-						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
+				.insertAll(List.of(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
 						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "y"), "beta"),
-						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")
-				));
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")));
 
 		List<EmbeddedPk> firstTwoPks = entities.stream().limit(2).map(SimpleEntityWithEmbeddedPk::embeddedPk).toList();
 		Iterable<SimpleEntityWithEmbeddedPk> reloaded = template.findAllById(firstTwoPks, SimpleEntityWithEmbeddedPk.class);
 
 		assertThat(reloaded).containsExactlyInAnyOrder(entities.get(0), entities.get(1));
-	}
-
-	@Test
-	// GH-574
-	void debuggingTest() {
-
-		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) template
-				.insertAll(List.of(
-						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
-						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "y"), "beta"),
-						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")
-				));
-
-		List<Map<String, Object>> values = namedParameterJdbcTemplate.queryForList("select one, two from simple_entity_with_embedded_pk where (one, two) in (:ids)", Map.of("ids", List.of(new Object[]{23, "x"}, new Object[]{23, "y"})));
-		System.out.println(values);
 	}
 
 	private record WrappedPk(Long id) {
