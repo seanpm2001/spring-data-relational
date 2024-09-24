@@ -118,21 +118,21 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		assertThat(reloaded).containsExactlyInAnyOrder(entities.get(0), entities.get(2));
 	}
 
-//	@Test // GH-574
-//	void deleteMultipleSimpleEntityWithEmbeddedPk() {
-//
-//		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) template
-//				.insertAll(List.of(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
-//						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "y"), "beta"),
-//						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")));
-//
-//
-//		template.deleteAll(List.of(entities.get(1), entities.get(0)));
-//
-//		Iterable<SimpleEntityWithEmbeddedPk> reloaded = template.findAll(SimpleEntityWithEmbeddedPk.class);
-//
-//		assertThat(reloaded).containsExactlyInAnyOrder(entities.get(2));
-//	}
+	@Test // GH-574
+	void deleteMultipleSimpleEntityWithEmbeddedPk() {
+
+		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) template
+				.insertAll(List.of(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "y"), "beta"),
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")));
+
+
+		template.deleteAll(List.of(entities.get(1), entities.get(0)));
+
+		Iterable<SimpleEntityWithEmbeddedPk> reloaded = template.findAll(SimpleEntityWithEmbeddedPk.class);
+
+		assertThat(reloaded).containsExactly(entities.get(2));
+	}
 
 	@Test // GH-574
 	void existsSingleSimpleEntityWithEmbeddedPk() {

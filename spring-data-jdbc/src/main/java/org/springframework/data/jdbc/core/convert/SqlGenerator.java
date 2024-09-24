@@ -38,6 +38,7 @@ import org.springframework.data.relational.core.sql.render.RenderContext;
 import org.springframework.data.relational.core.sql.render.SqlRenderer;
 import org.springframework.data.util.Lazy;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -650,14 +651,17 @@ class SqlGenerator {
 
 	private String createFindAllInListSql() {
 
-		List<Column> idColumns = getIdColumns();
-
-		TupleExpression tuple = TupleExpression.create(idColumns);
-
-		In condition = Conditions.in(tuple, getBindMarker(IDS_SQL_PARAMETER));
+		In condition = multiIdWhereClause();
 		Select select = selectBuilder().where(condition).build();
 
 		return render(select);
+	}
+
+	private In multiIdWhereClause() {
+
+		List<Column> idColumns = getIdColumns();
+		TupleExpression tuple = TupleExpression.create(idColumns);
+		return Conditions.in(tuple, getBindMarker(IDS_SQL_PARAMETER));
 	}
 
 	private String createExistsSql() {
@@ -766,7 +770,7 @@ class SqlGenerator {
 	private DeleteBuilder.DeleteWhereAndOr createBaseDeleteByIdIn(Table table) {
 
 		return Delete.builder().from(table) //
-				.where(getIdColumn().in(getBindMarker(IDS_SQL_PARAMETER)));
+				.where(multiIdWhereClause());
 	}
 
 	private String createDeleteByPathAndCriteria(AggregatePath path, Function<Column, Condition> rootCondition) {

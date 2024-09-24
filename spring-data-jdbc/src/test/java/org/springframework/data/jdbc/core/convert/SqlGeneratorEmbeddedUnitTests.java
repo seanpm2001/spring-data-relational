@@ -138,6 +138,21 @@ class SqlGeneratorEmbeddedUnitTests {
 	}
 
     @Test // GH-574
+	void deleteByIdInEmbeddedId() {
+
+		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithEmbeddedId.class);
+
+		String sql = sqlGenerator.getDeleteByIdIn();
+
+		assertSoftly(softly -> {
+
+			softly.assertThat(sql).startsWith("DELETE") //
+					.contains(" WHERE ") //
+					.contains("(dummy_entity_with_embedded_id.one, dummy_entity_with_embedded_id.two) IN (:ids)");
+		});
+	}
+
+    @Test // GH-574
 	void existsByIdEmbeddedId() {
 
 		SqlGenerator sqlGenerator = createSqlGenerator(DummyEntityWithEmbeddedId.class);
