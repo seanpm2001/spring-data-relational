@@ -26,9 +26,7 @@ import org.springframework.data.jdbc.support.JdbcUtil;
 import org.springframework.data.mapping.PersistentProperty;
 import org.springframework.data.mapping.PersistentPropertyAccessor;
 import org.springframework.data.mapping.PersistentPropertyPathAccessor;
-import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.relational.core.conversion.IdValueSource;
-import org.springframework.data.relational.core.dialect.Dialect;
 import org.springframework.data.relational.core.mapping.AggregatePath;
 import org.springframework.data.relational.core.mapping.RelationalMappingContext;
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
@@ -120,7 +118,6 @@ public class SqlParametersFactory {
 
 		SqlIdentifierParameterSource parameterSource = new SqlIdentifierParameterSource();
 
-
 		RelationalPersistentEntity<T> entity = getRequiredPersistentEntity(domainType);
 
 		RelationalPersistentProperty singleIdProperty = entity.getRequiredIdProperty();
@@ -168,9 +165,35 @@ public class SqlParametersFactory {
 
 		SqlIdentifierParameterSource parameterSource = new SqlIdentifierParameterSource();
 
-		addConvertedPropertyValuesAsList(parameterSource, getRequiredPersistentEntity(domainType).getRequiredIdProperty(),
-				ids);
+		RelationalPersistentEntity<?> entity = context.getPersistentEntity(domainType);
+		RelationalPersistentProperty singleIdProperty = entity.getRequiredIdProperty();
 
+		if (singleIdProperty.isEntity()) {
+
+			RelationalPersistentEntity<?> complexId = context.getPersistentEntity(singleIdProperty);
+			List<AggregatePath> idPaths = context.getIdPaths(entity);
+
+			List<Object[]> parameterValues = new ArrayList<>();
+
+			for (Object id : ids) {
+
+				PersistentPropertyPathAccessor<Object> accessor = complexId.getPropertyPathAccessor(id);
+
+				Object[] tuple = new Object[idPaths.size()];
+				int index = 0;
+				for (AggregatePath idPath : idPaths) {
+					AggregatePath idElementPath = idPath.getTail();
+					tuple[index] = accessor.getProperty(idElementPath.getRequiredPersistentPropertyPath());
+					index++;
+				}
+				parameterValues.add(tuple);
+			}
+
+			parameterSource.addValue(SqlGenerator.IDS_SQL_PARAMETER, parameterValues);
+		} else {
+			addConvertedPropertyValuesAsList(parameterSource, getRequiredPersistentEntity(domainType).getRequiredIdProperty(),
+					ids);
+		}
 		return parameterSource;
 	}
 
