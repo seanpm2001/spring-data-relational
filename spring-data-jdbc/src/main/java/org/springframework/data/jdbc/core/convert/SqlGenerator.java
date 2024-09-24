@@ -471,18 +471,25 @@ class SqlGenerator {
 
 		SelectBuilder.SelectWhereAndOr select = null;
 
+		return render(selectBuilder().where(singleIdWhereCondition()).build());
+	}
+
+	private Condition singleIdWhereCondition() {
+
+		Condition aggregate = null;
 		for (Column column : getIdColumns()) {
 			Comparison condition = column.isEqualTo(getBindMarker(column.getName()));
-			if (select == null) {
-				select = selectBuilder().where(condition);
+
+			if (aggregate == null) {
+				aggregate = condition;
 			} else {
-				select = select.and(condition);
+				aggregate = aggregate.and(condition);
 			}
 		}
 
-		Assert.state(select != null, "We need at least one id column");
+		Assert.state(aggregate != null, "We need at least one id column");
 
-		return render(select.build());
+		return aggregate;
 	}
 
 	private String createAcquireLockById(LockMode lockMode) {
@@ -753,7 +760,7 @@ class SqlGenerator {
 	private DeleteBuilder.DeleteWhereAndOr createBaseDeleteById(Table table) {
 
 		return Delete.builder().from(table) //
-				.where(getIdColumn().isEqualTo(getBindMarker(entity.getIdColumn())));
+				.where(singleIdWhereCondition());
 	}
 
 	private DeleteBuilder.DeleteWhereAndOr createBaseDeleteByIdIn(Table table) {
