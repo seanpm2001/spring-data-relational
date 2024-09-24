@@ -118,6 +118,22 @@ public class CompositeIdAggregateTemplateHsqlIntegrationTests {
 		assertThat(reloaded).containsExactlyInAnyOrder(entities.get(0), entities.get(2));
 	}
 
+	@Test // GH-574
+	void existsSingleSimpleEntityWithEmbeddedPk() {
+
+		List<SimpleEntityWithEmbeddedPk> entities = (List<SimpleEntityWithEmbeddedPk>) template
+				.insertAll(List.of(new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "x"), "alpha"),
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(23L, "y"), "beta"),
+						new SimpleEntityWithEmbeddedPk(new EmbeddedPk(24L, "y"), "gamma")));
+
+
+		template.existsById(entities.get(1).embeddedPk, SimpleEntityWithEmbeddedPk.class);
+
+		Iterable<SimpleEntityWithEmbeddedPk> reloaded = template.findAll(SimpleEntityWithEmbeddedPk.class);
+
+		assertThat(reloaded).containsExactlyInAnyOrder(entities.get(0), entities.get(2));
+	}
+
 	private record WrappedPk(Long id) {
 	}
 
